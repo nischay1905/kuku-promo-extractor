@@ -9,6 +9,12 @@ It outputs the exact episode, start/end timestamps for every segment, the hook, 
 
 ---
 
+## 🌐 Live Demo
+
+🚀 **Try Promo Finder:** [Launch Streamlit App](https://kuku-promo-extractor-5zuy3r98thtngxeybcdsft.streamlit.app/)
+
+Upload screenplay `.txt` files and generate ranked promo clips directly through the web application.
+
 ## 🚀 Run It
 
 **Requirements:** Python 3.10+ (standard library only).
