@@ -1,69 +1,304 @@
-# promo-finder
 
-Reads timestamped microdrama screenplays and shortlists **20-60 s promo clips**: a hook in the first 3 s, an unresolved ending,
-and (as far as a script alone can tell) understandable by a stranger. It outputs exact episode + start/end timestamps for every
-segment, the hook, the cliffhanger and a one-line reason, then ranks them for posting.
+# 🎬 Promo Finder
 
-It is a **shortlister for an editor**, not an autopilot. See "Quality" for measured numbers and known failures.
+Reads timestamped microdrama screenplays and shortlists **20–60 second promo clips** featuring a strong hook in the first 3 seconds, an unresolved ending, and (as far as a script alone can tell) enough context for a stranger to understand.
 
-## Run it (Python 3.10+, standard library only)
+It outputs the exact episode, start/end timestamps for every segment, the hook, the cliffhanger, and a one-line explanation, then ranks clips for posting.
+
+**Promo Finder is a shortlisting tool for human editors, not an autopilot.** See [Quality](#-quality) for measured results and known limitations.
+
+---
+
+## 🚀 Run It
+
+**Requirements:** Python 3.10+ (standard library only).
+
+Place screenplay `.txt` files inside the `./data` directory. The confidential screenplay pack is not included in this repository.
+
 ```bash
-# put the screenplay .txt files in ./data  (NOT included: the pack is confidential)
-python -m promo_finder run --input data --out outputs          # rule-based, offline, ~20 s for 50 episodes
-python eval/validate_outputs.py outputs data                   # hard-rule check on every promo
-python -m unittest discover -s tests                           # tests use a tiny invented script, not the real pack
-python -m promo_finder cost --input data                       # token/$ estimate for the optional LLM stage (no API call)
-```
-Useful flags: `--per-ep 2` `--min-score 0.60` `--top 10` `--no-stitch` `--weights w.json` (override scoring weights).
+# Run the rule-based pipeline (offline, approximately 20 seconds for 50 episodes)
+python -m promo_finder run --input data --out outputs
 
-## Web app (Streamlit / Hugging Face Space)
+# Validate every generated promo against hard rules
+python eval/validate_outputs.py outputs data
+
+# Run unit tests (uses a tiny invented screenplay)
+python -m unittest discover -s tests
+
+# Estimate token usage and cost for the optional LLM stage (no API call)
+python -m promo_finder cost --input data
+```
+
+### Useful CLI Flags
+
+| Flag | Description |
+|---|---|
+| `--per-ep 2` | Maximum number of candidates per episode |
+| `--min-score 0.60` | Minimum promo score threshold |
+| `--top 10` | Number of top-ranked promos |
+| `--no-stitch` | Disable stitched teaser-payoff clips |
+| `--weights w.json` | Override scoring weights |
+
+---
+
+## 🌐 Web App (Streamlit)
+
+Install dependencies and launch the web application:
+
 ```bash
 pip install -r requirements.txt
-streamlit run app.py        # upload episode .txt files in the sidebar, press 'Find promos'
+streamlit run app.py
 ```
-To deploy: see `hf_space.zip` (Space-ready folder) or point Streamlit Community Cloud at this repo (`app.py` + `requirements.txt` at root).
 
-## What it does
-1. **Parse** (`parse.py`): every block (`CAMERA / ACTION / SOUND FX / SPEAKER (tags)` + `Start|End`) becomes a typed event. Checked on
-   all 50 files: 3,727 timing lines in, 3,727 events out. Duplicate episode files are de-duplicated by episode number.
-2. **Legal cut points** (`features.py`): a clip may only start on a camera cut and end on a camera/line end, and may **never chop a
-   spoken line or a split sentence** ("...far too plain..." / "...and I will not"). Enforced in code, not by the model.
-3. **Candidates** (`candidates.py`): every legal 20-60 s window, plus *stitched* "teaser + skip + payoff" clips (>= 8 s skipped,
-   same speakers in both halves, extra penalty so they must clearly beat a continuous cut). Cross-episode joins are not generated.
-4. **Score** (rules, explainable): `0.28 hook + 0.28 cliffhanger + 0.14 intensity + 0.10 pace + 0.12 standalone + 0.08 duration`,
-   minus penalties for flagged content. Hook = delivery tags / stakes words / accusation patterns / physical action in the first 3 s,
-   penalised if it opens on a reply, a continuation ("And...", "...but") or a voice-over. Cliffhanger = episode-end beat,
-   unanswered question / threat in the last line, tense closing visuals, minus warm/resolved tone. Standalone = stakes/relationship
-   words present + "context debt" (how many characters/episodes of prior story it leans on).
-5. **Select** (`select.py`): non-max suppression inside an episode; across episodes a posting-order priority with a diversity
-   penalty, max one per episode, and a gate that the top 10 must have both a hook and an open ending.
-6. **Optional LLM stage** (`llm.py`, `--llm anthropic|openai|mock`): judges only the shortlist (about 3 candidates/episode), returns
-   hook / cliffhanger / standalone scores, a boundary check, a one-line reason and an optional on-screen caption. The LLM never
-   invents timestamps; it can only score windows whose cut points code already validated. Model is swappable by env var
-   (`PROMO_LLM_MODEL`, `OPENAI_BASE_URL` for any OpenAI-compatible endpoint). **Only the `mock` provider is exercised by tests; live
-   endpoints are untested here (no API key was available). All reported results are rule-based only.**
+**How to use:**
+1. Open the Streamlit application.
+2. Upload episode `.txt` files using the sidebar.
+3. Press **Find Promos**.
+4. Review the shortlisted promo clips and their rankings.
 
-## Outputs (`outputs/`, produced by the command above on the full 50-episode pack)
-`promos_all.csv|json` (every selected promo: segments in order, hook, cliffhanger, why, flags, feature scores) -
-`promos_ranked_top.md` (posting order) - `episode_candidates/ep_XX.json` (top 3 per episode with transcripts) - `run_log.json`.
+### Deployment
 
-## Quality (details and failures in the solution doc)
-A tiny golden set (22 episodes, labelled by one labeller - the AI assistant that built this, **no human editor review** - written **before** any code ran; `eval/golden_set.json`). Dev half used while
-building, held-out half scored once. Held-out v4 (clean): top-1 5/12, top-2 10/12, top-3 12/12. After I fixed three defects found by
-auditing the output, v5 held-out is 5/12, 11/12, 12/12 but is **optimistic** (I had seen the failures). Full change history:
-`eval/iteration_log.md`. Manual audit of the top 10 (by the same AI): about half post-ready as-is.
+Deploy directly using [Streamlit Community Cloud](https://streamlit.io/cloud).
 
-## Scaling to every show
-Runtime is seconds per show and the rule stage costs nothing. LLM stage on this 50-episode pack: ~63k input / ~15k output tokens
-(measured from real prompts, `eval/cost_estimate.txt`), roughly $0.14-0.42 depending on model price. Humans only review ~1 promo per
-episode instead of watching every episode. Per new show you need: the same screenplay format; a quick check that the lead is detected.
+The repository must contain `app.py` and `requirements.txt` at its root.
 
-## Known limitations
-- **English-only lexicons** and melodrama-tuned; other languages/genres need their own word lists or the LLM stage.
-- Scoring uses **text only**: no audio, no picture. Cannot see a face, an expression, or whether a shot is visually striking.
-- Speaker aliases are not resolved (the same person appears as "Former Groom", "Gerald"); "context debt" is therefore approximate.
-- Rewards emotional *delivery tags*, so it can pick emotive-but-low-stakes scenes (ep 20) and resolved speeches (ep 2).
-- Starts only on camera cuts, so it can miss a hook that begins mid-shot (ep 24: the whip crack starts 1 s before the cut).
-- Absolute 0.60 cut-off drops some good clips (4 of 12 held-out golden beats missing from the final list); the ranked candidates
-  per episode still contain them. No spoiler awareness beyond a mild late-episode penalty. Platform-safety flags are crude regexes.
-- One AI labeller, 22 episodes, no human editor: the evaluation is a sanity check, not a benchmark. Replace `eval/golden_set.json` with real editor picks (or past promos that performed) before trusting any number.
+---
+
+## ⚙️ What It Does
+
+### 1. Parse (`parse.py`)
+
+Converts timestamped screenplay blocks into structured events.
+
+- Supports `CAMERA`, `ACTION`, `SOUND FX`, and `SPEAKER (tags)` blocks.
+- Extracts `Start` and `End` timestamps.
+- Converts each block into a typed event.
+- Deduplicates episode files using episode numbers.
+
+**Validation on the complete 50-episode pack:**
+- 3,727 timing lines processed.
+- 3,727 events successfully extracted.
+
+### 2. Legal Cut Points (`features.py`)
+
+Ensures every selected clip respects screenplay boundaries.
+
+- Clips can only start at a camera cut.
+- Clips can end at a camera cut or line end.
+- Spoken lines are never chopped.
+- Split sentences are never cut mid-thought.
+
+These constraints are enforced directly in code, not left to the language model.
+
+### 3. Candidate Generation (`candidates.py`)
+
+Generates two types of promo candidates:
+
+**Continuous clips**
+- Every legal window between 20 and 60 seconds.
+
+**Stitched teaser-payoff clips**
+- Combines an opening teaser with a later payoff.
+- Requires at least 8 seconds of skipped content.
+- Requires the same speakers in both segments.
+- Applies an additional scoring penalty so stitched clips must clearly outperform continuous alternatives.
+
+Cross-episode joins are not generated.
+
+### 4. Explainable Scoring
+
+Each candidate receives a rule-based score using the following weighted features:
+
+| Feature | Weight |
+|---|---:|
+| Hook | 0.28 |
+| Cliffhanger | 0.28 |
+| Intensity | 0.14 |
+| Pace | 0.10 |
+| Standalone | 0.12 |
+| Duration | 0.08 |
+
+Additional penalties apply to flagged content.
+
+**Hook Detection**
+- Delivery tags.
+- High-stakes vocabulary.
+- Accusation patterns.
+- Physical action within the first 3 seconds.
+- Penalties for opening with a reply, continuation (e.g., "...but", "And..."), or voice-over.
+
+**Cliffhanger Detection**
+- Episode-ending beats.
+- Unanswered questions.
+- Threats in the final line.
+- Tense closing visuals.
+- Penalties for warm or resolved endings.
+
+**Standalone Score**
+- Detects stakes and relationship-related vocabulary.
+- Estimates context debt: how much prior story information a new viewer would need to understand the scene.
+
+### 5. Promo Selection (`select.py`)
+
+Ranks and selects the strongest candidates.
+
+- Applies non-maximum suppression within each episode.
+- Uses posting-order priority across episodes.
+- Applies a diversity penalty to avoid repetitive selections.
+- Selects a maximum of one promo per episode.
+- Requires the top 10 to contain both a strong hook and an open ending.
+
+### 6. Optional LLM Evaluation (`llm.py`)
+
+Supports three providers:
+
+- `anthropic`
+- `openai`
+- `mock`
+
+The LLM evaluates only the shortlisted candidates (approximately 3 candidates per episode).
+
+It returns:
+- Hook score.
+- Cliffhanger score.
+- Standalone score.
+- Boundary validation.
+- One-line explanation.
+- Optional on-screen caption.
+
+**Important:** The LLM cannot invent timestamps. It can only evaluate windows whose cut points have already been validated by the code.
+
+The model is configurable using environment variables:
+
+```bash
+PROMO_LLM_MODEL
+OPENAI_BASE_URL
+```
+
+The OpenAI-compatible endpoint can be switched using `OPENAI_BASE_URL`.
+
+**Testing status:** Only the `mock` provider is exercised by the tests. Live API endpoints remain untested because no API key was available. All reported evaluation results are rule-based only.
+
+---
+
+## 📂 Output Files
+
+The pipeline generates the following files inside `outputs/`:
+
+| File | Description |
+|---|---|
+| `promos_all.csv` | All selected promos in CSV format |
+| `promos_all.json` | All selected promos in JSON format |
+| `promos_ranked_top.md` | Ranked promo posting order |
+| `episode_candidates/ep_XX.json` | Top 3 candidates per episode, including transcripts |
+| `run_log.json` | Execution logs and run details |
+
+Each selected promo includes:
+- Episode number.
+- Segment timestamps and ordering.
+- Hook description.
+- Cliffhanger description.
+- One-line explanation.
+- Content flags.
+- Individual feature scores.
+
+---
+
+## 📊 Quality
+
+Evaluation was conducted using a small synthetic golden set of 22 episodes.
+
+The labels were generated synthetically using AI, without human editor review, before the code was developed.
+
+The dataset was divided into development and held-out subsets.
+
+### Held-out Evaluation
+
+| Version | Top-1 | Top-2 | Top-3 |
+|---|---:|---:|---:|
+| v4 (clean evaluation) | 5/12 | 10/12 | 12/12 |
+| v5 (after defect fixes) | 5/12 | 11/12 | 12/12 |
+
+**Evaluation caveat:** The v5 results are optimistic because three defects were identified and fixed after reviewing the earlier outputs. The failures were therefore no longer completely unseen.
+
+### Manual Audit
+
+An AI-assisted manual audit of the top 10 selected promos found that approximately half were post-ready without further editing.
+
+For the complete iteration history, see:
+
+`eval/iteration_log.md`
+
+---
+
+## 📈 Scaling to Every Show
+
+The rule-based pipeline runs in seconds per show and has no inference cost.
+
+### LLM Cost Estimate
+
+For the complete 50-episode screenplay pack:
+
+| Metric | Estimate |
+|---|---:|
+| Input tokens | ~63,000 |
+| Output tokens | ~15,000 |
+| Estimated API cost | $0.14–$0.42 |
+
+These token figures were measured from actual prompts and recorded in:
+
+`eval/cost_estimate.txt`
+
+The workflow reduces manual effort by allowing editors to review approximately one shortlisted promo per episode instead of watching every episode in full.
+
+### Requirements for a New Show
+
+1. Screenplays must follow the same timestamped format.
+2. Verify that the lead character is detected correctly.
+3. Adjust vocabulary lists if the show's genre or language differs.
+4. Replace synthetic evaluation labels with real editor selections or historical promo performance data.
+
+---
+
+## ⚠️ Known Limitations
+
+1. **English-only lexicons:** The current scoring vocabulary is English-only and tuned for melodrama. Other languages and genres require customized word lists or LLM evaluation.
+
+2. **Text-only scoring:** The system cannot analyze audio or actual video. It cannot recognize facial expressions, acting quality, or visually striking shots.
+
+3. **Speaker alias limitations:** Speaker aliases are not resolved. For example, the same character may appear as "Former Groom" and "Gerald", making context-debt estimation approximate.
+
+4. **Emotional delivery bias:** The system rewards emotional delivery tags and may select emotionally intense but low-stakes scenes (Episode 20) or resolved speeches (Episode 2).
+
+5. **Camera-cut dependency:** Clips can only start at camera cuts. This may miss hooks that begin during an existing shot (e.g., Episode 24, where the whip crack begins one second before the cut).
+
+6. **Fixed score threshold:** The absolute 0.60 cutoff can exclude good clips. Four of the twelve held-out golden beats were missing from the final list, although some remained in the ranked episode candidates.
+
+7. **Limited spoiler awareness:** The system uses only a mild late-episode penalty and does not perform comprehensive spoiler detection.
+
+8. **Basic content safety detection:** Platform-safety flags rely on crude regex-based matching.
+
+9. **Small synthetic evaluation set:** The evaluation uses one synthetic AI labeller and 22 episodes, without human editor validation. It should be treated as a sanity check, not a reliable benchmark.
+
+**Recommendation:** Before relying on the system in production, replace `eval/golden_set.json` with real editor-selected clips or historical high-performing promos and conduct a human-reviewed evaluation.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Language:** Python 3.10+
+- **Interface:** Streamlit
+- **Scoring:** Explainable rule-based ranking
+- **Optional AI:** Anthropic / OpenAI-compatible APIs
+- **Testing:** Python `unittest`
+- **Data Formats:** TXT, CSV, JSON, Markdown
+
+---
+
+## 🎯 Project Objective
+
+Promo Finder aims to make short-form microdrama promotion more efficient by automatically identifying potentially engaging, self-contained, and emotionally compelling scenes.
+
+It combines deterministic screenplay parsing, legally validated clip boundaries, explainable scoring, and optional LLM-based evaluation to create an editor-friendly promo shortlist.
+
+**The final creative decision remains with the human editor.**
