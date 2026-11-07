@@ -1,0 +1,1 @@
+{'split': 'heldout', 'n': 12, 'lenient_hit@1': 5, 'lenient_hit@2': 11, 'lenient_hit@3': 12, 'strict_IoU>=0.4_hit@1': 5, 'strict_hit@3': 11, 'in_final_selection(lenient)': 8}

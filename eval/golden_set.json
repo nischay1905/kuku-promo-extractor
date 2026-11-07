@@ -1,0 +1,30 @@
+{
+  "_note": "Hand-picked BEFORE any code was written or run. Labeler: Claude (the AI assistant that built this tool), after reading all 50 scripts once. NOT reviewed by a human editor - subjective and small. Each entry is the beat I would expect a promo to contain. 'alts' = acceptable alternative beats in the same episode. Split: 'dev' may be used to tune weights; 'heldout' is scored once at the end.",
+  "match_rule": "A tool promo 'hits' a golden beat if overlap_seconds / min(len_core, len_promo_segment_union) >= 0.6 on the same episode.",
+  "dev": [
+    {"ep": 1,  "cores": [[33.7, 90.8]],               "why": "Altar reveal: 'Why are you holding her hand?' -> father refuses to look"},
+    {"ep": 3,  "cores": [[66.0, 96.5], [119.2, 145.75]], "why": "Stranger stops guards / stranger kneels with ring"},
+    {"ep": 5,  "cores": [[41.5, 91.0]],               "why": "Stepmother snatches mother's ledger, throws it in mud"},
+    {"ep": 9,  "cores": [[83.8, 115.5]],              "why": "'Resembles the late Duke' -> Nobleman 'Impossible.'"},
+    {"ep": 12, "cores": [[44.0, 87.2]],               "why": "Clarissa's thorn-garden ultimatum -> 'Tell me where the garden is.'"},
+    {"ep": 16, "cores": [[41.2, 59.0]],               "why": "'Who sent you?' -> 'Gerald Harrington paid us!'"},
+    {"ep": 23, "cores": [[79.0, 131.5]],              "why": "'Someone is poisoning her' -> 'someone is coming' door opens"},
+    {"ep": 27, "cores": [[103.6, 150.5]],             "why": "'Poison.' -> framed -> 'Take her.'"},
+    {"ep": 30, "cores": [[85.8, 144.5]],              "why": "Witchcraft frame-up plot -> 'she becomes a witch'"},
+    {"ep": 41, "cores": [[57.8, 96.09]],              "why": "Juliana paraded in chains -> cathedral explosion"}
+  ],
+  "heldout": [
+    {"ep": 2,  "cores": [[0.0, 47.6]],                "why": "Gerald: 'I cannot marry you' -> father: 'Do not disgrace us further'"},
+    {"ep": 7,  "cores": [[65.2, 116.0]],              "why": "Gerald threatens -> scarred husband silently sends him fleeing"},
+    {"ep": 11, "cores": [[67.4, 112.75]],             "why": "Constable pulls planted gold watch from coat"},
+    {"ep": 13, "cores": [[50.0, 118.88]],             "why": "Juliana crawls through blackthorns for the ring"},
+    {"ep": 22, "cores": [[102.0, 131.0]],             "why": "Maid disguise -> finds poisoned Duchess"},
+    {"ep": 26, "cores": [[86.5, 120.88]],             "why": "Duchess recognises ring: 'Where did you get this ring?'"},
+    {"ep": 29, "cores": [[20.1, 80.9]],               "why": "Catherine threatens to burn the herbarium and frame her"},
+    {"ep": 31, "cores": [[118.2, 160.0]],             "why": "Red-hot poker / book burning cliffhanger"},
+    {"ep": 34, "cores": [[142.4, 190.0]],             "why": "Trial: refuse to renounce -> judge about to pronounce sentence"},
+    {"ep": 36, "cores": [[145.8, 200.75]],            "why": "'Executed after the wedding' -> 'their dead Duke is coming home'"},
+    {"ep": 43, "cores": [[96.5, 114.96]],             "why": "Sterling tries to flee -> 'Going somewhere, Lord Sterling?'"},
+    {"ep": 45, "cores": [[86.5, 121.75]],             "why": "'You are not Alexander's lawful wife' -> Catherine's smirk"}
+  ]
+}
