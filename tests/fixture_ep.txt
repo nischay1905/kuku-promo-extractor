@@ -1,0 +1,60 @@
+EPISODE NUMBER: Episode 1
+EPISODE LOGLINE: A baker discovers her business partner is selling the shop.
+CONTINUITY NOTES: Pilot.
+
+--- SCRIPT START ---
+
+SCENE 01
+Scene heading: INT. BAKERY - NIGHT
+Scene start: 00:00.00
+Scene end: 00:50.00
+
+Actions and dialogue:
+
+**CAMERA:**
+Start: (00:00.00) | End: (00:04.00)
+Wide establishing shot of a dim bakery.
+
+**MARA (Furious, Shouting):**
+Start: (00:01.00) | End: (00:03.50)
+"You sold my shop behind my back!"
+
+**CAMERA:**
+Start: (00:04.00) | End: (00:09.00)
+Close-up of Dev slamming a ledger shut.
+
+**DEV (Cold, Threatening):**
+Start: (00:04.20) | End: (00:08.80)
+"You will sign, or you will lose everything..."
+
+**MARA (Defiant):**
+Start: (00:09.20) | End: (00:12.00)
+"...and I will never sign."
+
+**CAMERA:**
+Start: (00:09.00) | End: (00:13.00)
+Mara glares at Dev.
+
+**DEV (Menacing):**
+Start: (00:13.20) | End: (00:16.00)
+"Then who will believe you?"
+
+**CAMERA:**
+Start: (00:13.00) | End: (00:17.00)
+Dev smirks, tension building.
+
+**MARA (Desperate):**
+Start: (00:17.50) | End: (00:21.00)
+"Everyone in this town knows what you did. Everyone!"
+
+**CAMERA:**
+Start: (00:17.00) | End: (00:22.00)
+Wide shot of both.
+
+**DEV (Sinister):**
+Start: (00:22.50) | End: (00:27.50)
+"Your sister already signed. She is waiting outside."
+
+**CAMERA:**
+Start: (00:22.00) | End: (00:30.00)
+The door creaks open and a silhouette appears. The score holds on a cliffhanger.
